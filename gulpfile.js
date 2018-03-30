@@ -17,8 +17,20 @@ var deepmerge = DeepMerge(function(target, source, key) {
 
 var defaultConfig = {
   module: {
-    loaders: [
-      {test: /\.js$/, exclude: /node_modules/, loaders: ['monkey-hot', 'babel'] },
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'monkey-hot-loader',
+            options: {
+              sourceType: 'module'
+            }
+          },
+          'babel-loader'
+        ]
+      }
     ]
   }
 };
@@ -26,7 +38,7 @@ var defaultConfig = {
 if(process.env.NODE_ENV !== 'production') {
   //defaultConfig.devtool = '#eval-source-map';
   defaultConfig.devtool = 'source-map';
-  defaultConfig.debug = true;
+  // defaultConfig.debug = true;
 }
 
 function config(overrides) {
@@ -41,6 +53,7 @@ var frontendConfig = config({
     'webpack/hot/only-dev-server',
     './static/js/main.js'
   ],
+  mode: 'development',
   output: {
     path: path.join(__dirname, 'static/build'),
     publicPath: 'http://localhost:3000/build',
@@ -63,6 +76,7 @@ var backendConfig = config({
     'webpack/hot/signal.js',
     './src/main.js'
   ],
+  mode: 'development',
   target: 'node',
   output: {
     path: path.join(__dirname, 'build'),
@@ -84,8 +98,11 @@ var backendConfig = config({
   recordsPath: path.join(__dirname, 'build/_records'),
   plugins: [
     new webpack.IgnorePlugin(/\.(css|less)$/),
-    new webpack.BannerPlugin('require("source-map-support").install();',
-                             { raw: true, entryOnly: false }),
+    new webpack.BannerPlugin({
+      banner: 'require("source-map-support").install();',
+      raw: true,
+      entryOnly: false
+    }),
     new webpack.HotModuleReplacementPlugin({ quiet: true })
   ]
 });

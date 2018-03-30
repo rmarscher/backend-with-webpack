@@ -4,9 +4,13 @@ import express from 'express';
 import socketio from 'socket.io';
 import index from './index';
 import page from './page';
+import message from './message';
 
 let app = express();
 app.use(express.static(path.join(__dirname, '../static')));
+app.get('/message', (req, res) => {
+  res.send(message());
+})
 
 let server = http.createServer(app);
 let io = socketio(server);
